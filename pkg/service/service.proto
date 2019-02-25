@@ -1,0 +1,14 @@
+
+syntax = "proto3";
+package service;
+
+// import "google/api/annotations.proto";
+
+message PingMessage {
+    string message = 1;
+}
+
+service PeerService {
+    rpc Ping(PingMessage) returns (PingMessage);
+}
+
