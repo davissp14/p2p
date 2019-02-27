@@ -7,6 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	math "math"
 )
@@ -61,21 +62,117 @@ func (m *PingMessage) GetMessage() string {
 	return ""
 }
 
+type PeerDownloadRequest struct {
+	Addr                 string   `protobuf:"bytes,1,opt,name=Addr,proto3" json:"Addr,omitempty"`
+	FilePath             string   `protobuf:"bytes,2,opt,name=FilePath,proto3" json:"FilePath,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PeerDownloadRequest) Reset()         { *m = PeerDownloadRequest{} }
+func (m *PeerDownloadRequest) String() string { return proto.CompactTextString(m) }
+func (*PeerDownloadRequest) ProtoMessage()    {}
+func (*PeerDownloadRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{1}
+}
+
+func (m *PeerDownloadRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PeerDownloadRequest.Unmarshal(m, b)
+}
+func (m *PeerDownloadRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PeerDownloadRequest.Marshal(b, m, deterministic)
+}
+func (m *PeerDownloadRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PeerDownloadRequest.Merge(m, src)
+}
+func (m *PeerDownloadRequest) XXX_Size() int {
+	return xxx_messageInfo_PeerDownloadRequest.Size(m)
+}
+func (m *PeerDownloadRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PeerDownloadRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PeerDownloadRequest proto.InternalMessageInfo
+
+func (m *PeerDownloadRequest) GetAddr() string {
+	if m != nil {
+		return m.Addr
+	}
+	return ""
+}
+
+func (m *PeerDownloadRequest) GetFilePath() string {
+	if m != nil {
+		return m.FilePath
+	}
+	return ""
+}
+
+type Chunk struct {
+	Data                 []byte   `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Chunk) Reset()         { *m = Chunk{} }
+func (m *Chunk) String() string { return proto.CompactTextString(m) }
+func (*Chunk) ProtoMessage()    {}
+func (*Chunk) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{2}
+}
+
+func (m *Chunk) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Chunk.Unmarshal(m, b)
+}
+func (m *Chunk) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Chunk.Marshal(b, m, deterministic)
+}
+func (m *Chunk) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Chunk.Merge(m, src)
+}
+func (m *Chunk) XXX_Size() int {
+	return xxx_messageInfo_Chunk.Size(m)
+}
+func (m *Chunk) XXX_DiscardUnknown() {
+	xxx_messageInfo_Chunk.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Chunk proto.InternalMessageInfo
+
+func (m *Chunk) GetData() []byte {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*PingMessage)(nil), "service.PingMessage")
+	proto.RegisterType((*PeerDownloadRequest)(nil), "service.PeerDownloadRequest")
+	proto.RegisterType((*Chunk)(nil), "service.Chunk")
 }
 
 func init() { proto.RegisterFile("service.proto", fileDescriptor_a0b84a42fa06f626) }
 
 var fileDescriptor_a0b84a42fa06f626 = []byte{
-	// 106 bytes of a gzipped FileDescriptorProto
+	// 229 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2d, 0x4e, 0x2d, 0x2a,
-	0xcb, 0x4c, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x87, 0x72, 0x95, 0xd4, 0xb9,
-	0xb8, 0x03, 0x32, 0xf3, 0xd2, 0x7d, 0x53, 0x8b, 0x8b, 0x13, 0xd3, 0x53, 0x85, 0x24, 0xb8, 0xd8,
-	0x73, 0x21, 0x4c, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x18, 0xd7, 0xc8, 0x91, 0x8b, 0x3b,
-	0x20, 0x35, 0xb5, 0x28, 0x18, 0xa2, 0x4f, 0xc8, 0x88, 0x8b, 0x05, 0xa4, 0x4f, 0x48, 0x44, 0x0f,
-	0x66, 0x30, 0x92, 0x31, 0x52, 0x58, 0x45, 0x93, 0xd8, 0xc0, 0x76, 0x1b, 0x03, 0x02, 0x00, 0x00,
-	0xff, 0xff, 0x22, 0xff, 0x95, 0x37, 0x8c, 0x00, 0x00, 0x00,
+	0xcb, 0x4c, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x87, 0x72, 0xa5, 0xa4, 0xd3,
+	0xf3, 0xf3, 0xd3, 0x73, 0x52, 0xf5, 0xc1, 0xc2, 0x49, 0xa5, 0x69, 0xfa, 0xa9, 0xb9, 0x05, 0x25,
+	0x95, 0x10, 0x55, 0x4a, 0xea, 0x5c, 0xdc, 0x01, 0x99, 0x79, 0xe9, 0xbe, 0xa9, 0xc5, 0xc5, 0x89,
+	0xe9, 0xa9, 0x42, 0x12, 0x5c, 0xec, 0xb9, 0x10, 0xa6, 0x04, 0xa3, 0x02, 0xa3, 0x06, 0x67, 0x10,
+	0x8c, 0xab, 0xe4, 0xca, 0x25, 0x1c, 0x90, 0x9a, 0x5a, 0xe4, 0x92, 0x5f, 0x9e, 0x97, 0x93, 0x9f,
+	0x98, 0x12, 0x94, 0x5a, 0x58, 0x9a, 0x5a, 0x5c, 0x22, 0x24, 0xc4, 0xc5, 0xe2, 0x98, 0x92, 0x52,
+	0x04, 0x55, 0x0d, 0x66, 0x0b, 0x49, 0x71, 0x71, 0xb8, 0x65, 0xe6, 0xa4, 0x06, 0x24, 0x96, 0x64,
+	0x48, 0x30, 0x81, 0xc5, 0xe1, 0x7c, 0x25, 0x69, 0x2e, 0x56, 0xe7, 0x8c, 0xd2, 0xbc, 0x6c, 0x90,
+	0xc6, 0x94, 0xc4, 0x92, 0x44, 0xb0, 0x46, 0x9e, 0x20, 0x30, 0xdb, 0xa8, 0x9e, 0x8b, 0x1b, 0x64,
+	0x47, 0x30, 0xc4, 0xe1, 0x42, 0x26, 0x5c, 0x2c, 0x20, 0xb7, 0x09, 0x89, 0xe9, 0x41, 0x7c, 0xa0,
+	0x07, 0xf3, 0x81, 0x9e, 0x2b, 0xc8, 0x07, 0x52, 0x22, 0x7a, 0x30, 0x1f, 0x23, 0x7b, 0xc1, 0x8a,
+	0x8b, 0x03, 0xe6, 0x48, 0x21, 0x19, 0x84, 0x0a, 0x4c, 0xb7, 0x4b, 0xf1, 0xc1, 0x65, 0xc1, 0x4e,
+	0x32, 0x60, 0x4c, 0x62, 0x03, 0xdb, 0x60, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x5d, 0x9d, 0xae,
+	0x80, 0x4b, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -90,7 +187,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PeerServiceClient interface {
-	Ping(ctx context.Context, in *PingMessage, opts ...grpc.CallOption) (*PingMessage, error)
+	Ping(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*PingMessage, error)
+	Download(ctx context.Context, in *PeerDownloadRequest, opts ...grpc.CallOption) (PeerService_DownloadClient, error)
 }
 
 type peerServiceClient struct {
@@ -101,7 +199,7 @@ func NewPeerServiceClient(cc *grpc.ClientConn) PeerServiceClient {
 	return &peerServiceClient{cc}
 }
 
-func (c *peerServiceClient) Ping(ctx context.Context, in *PingMessage, opts ...grpc.CallOption) (*PingMessage, error) {
+func (c *peerServiceClient) Ping(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*PingMessage, error) {
 	out := new(PingMessage)
 	err := c.cc.Invoke(ctx, "/service.PeerService/Ping", in, out, opts...)
 	if err != nil {
@@ -110,9 +208,42 @@ func (c *peerServiceClient) Ping(ctx context.Context, in *PingMessage, opts ...g
 	return out, nil
 }
 
+func (c *peerServiceClient) Download(ctx context.Context, in *PeerDownloadRequest, opts ...grpc.CallOption) (PeerService_DownloadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PeerService_serviceDesc.Streams[0], "/service.PeerService/Download", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peerServiceDownloadClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PeerService_DownloadClient interface {
+	Recv() (*Chunk, error)
+	grpc.ClientStream
+}
+
+type peerServiceDownloadClient struct {
+	grpc.ClientStream
+}
+
+func (x *peerServiceDownloadClient) Recv() (*Chunk, error) {
+	m := new(Chunk)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PeerServiceServer is the server API for PeerService service.
 type PeerServiceServer interface {
-	Ping(context.Context, *PingMessage) (*PingMessage, error)
+	Ping(context.Context, *empty.Empty) (*PingMessage, error)
+	Download(*PeerDownloadRequest, PeerService_DownloadServer) error
 }
 
 func RegisterPeerServiceServer(s *grpc.Server, srv PeerServiceServer) {
@@ -120,7 +251,7 @@ func RegisterPeerServiceServer(s *grpc.Server, srv PeerServiceServer) {
 }
 
 func _PeerService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingMessage)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -132,9 +263,30 @@ func _PeerService_Ping_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/service.PeerService/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerServiceServer).Ping(ctx, req.(*PingMessage))
+		return srv.(PeerServiceServer).Ping(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _PeerService_Download_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PeerDownloadRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PeerServiceServer).Download(m, &peerServiceDownloadServer{stream})
+}
+
+type PeerService_DownloadServer interface {
+	Send(*Chunk) error
+	grpc.ServerStream
+}
+
+type peerServiceDownloadServer struct {
+	grpc.ServerStream
+}
+
+func (x *peerServiceDownloadServer) Send(m *Chunk) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 var _PeerService_serviceDesc = grpc.ServiceDesc{
@@ -146,6 +298,12 @@ var _PeerService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _PeerService_Ping_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Download",
+			Handler:       _PeerService_Download_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "service.proto",
 }

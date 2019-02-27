@@ -2,13 +2,24 @@
 syntax = "proto3";
 package service;
 
+import "google/protobuf/empty.proto";
 // import "google/api/annotations.proto";
 
 message PingMessage {
     string message = 1;
 }
 
+message PeerDownloadRequest {
+    string Addr = 1;
+    string FilePath = 2;
+}
+
+message Chunk {
+    bytes data = 1;
+}
+
 service PeerService {
-    rpc Ping(PingMessage) returns (PingMessage);
+    rpc Ping(google.protobuf.Empty) returns (PingMessage);
+    rpc Download(PeerDownloadRequest) returns (stream Chunk);
 }
 

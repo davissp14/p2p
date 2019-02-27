@@ -1,49 +1,66 @@
-package main
+package server
 
 import (
 	"context"
-	"flag"
-	"fmt"
+	"io"
 	"log"
-	"net"
-	"sync"
+	"os"
 
-	"github.com/davissp14/p2p/pkg/service"
+	"github.com/golang/protobuf/ptypes/empty"
+
 	pb "github.com/davissp14/p2p/pkg/service"
-
-	"google.golang.org/grpc"
 )
 
-var (
-	hostname = flag.String("addr", "localhost", "The server hostname")
-	port     = flag.Int("port", 8080, "The server port")
-)
-
-type peerServiceServer struct {
-	mu sync.Mutex
+type PeerServiceServer struct {
+	tls      bool
+	keyFile  string
+	certFile string
+	port     int
 }
 
-func (e *peerServiceServer) Ping(ctx context.Context, msg *service.PingMessage) (*service.PingMessage, error) {
+func NewServer(port int, tls bool, keyFile, certFile string) *PeerServiceServer {
+	return &PeerServiceServer{
+		port:     port,
+		tls:      tls,
+		certFile: certFile,
+		keyFile:  keyFile,
+	}
+}
+
+func (p *PeerServiceServer) Ping(ctx context.Context, in *empty.Empty) (*pb.PingMessage, error) {
 	response := pb.PingMessage{Message: "PONG"}
 	return &response, nil
 }
 
-func newServer() *peerServiceServer {
-	return &peerServiceServer{}
-}
-
-func main() {
-	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *hostname, *port))
+func (p *PeerServiceServer) Download(req *pb.PeerDownloadRequest, stream pb.PeerService_DownloadServer) error {
+	file, err := os.Open(req.FilePath)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return err
 	}
-	fmt.Printf("Listening on port %d\n", *port)
-	var opts []grpc.ServerOption
-	// opts = []grpc.ServerOption{grpc.WithInsecure()}
-	grpcServer := grpc.NewServer(opts...)
 
-	pb.RegisterPeerServiceServer(grpcServer, newServer())
+	log.Printf("Incoming request to download file `%s`\n", req.FilePath)
+	log.Println("Initiating file transfer...")
+	buf := make([]byte, 1024)
+	writing := true
+	success := false
+	for writing {
+		n, err := file.Read(buf)
+		if err == io.EOF {
+			writing = false
+			success = true
+			break
+		}
+		if err != nil {
+			log.Printf("failed to read file. error: %s", err.Error())
+			break
+		}
+		chunk := pb.Chunk{Data: buf[:n]}
+		stream.Send(&chunk)
+	}
 
-	grpcServer.Serve(lis)
+	if success {
+		log.Println("File transfer completed!")
+	}
+
+	return nil
 }
