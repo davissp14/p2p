@@ -25,6 +25,7 @@ var (
 
 // Server Subcommands
 var (
+	serverHost     = serverCommand.String("hostname", "localhost", "server hostname tied to cert")
 	serverPort     = serverCommand.Int("port", 8080, "server port")
 	serverTLS      = serverCommand.Bool("tls", false, "enable secure transport")
 	serverKeyFile  = serverCommand.String("key-file", "", "idenfity HTTPS client using this SSL key file")
@@ -102,7 +103,7 @@ cacert:  Required for most commands when tls is configured
 		}
 		pb.RegisterPeerServiceServer(srv, server.NewServer(*serverPort, *serverTLS, *serverKeyFile, *serverCertFile))
 
-		lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *serverPort))
+		lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *serverHost, *serverPort))
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
