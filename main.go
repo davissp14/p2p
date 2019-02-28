@@ -18,6 +18,7 @@ import (
 // Subcommands
 var (
 	serverCommand   = flag.NewFlagSet("server", flag.ExitOnError)
+	pingCommand     = flag.NewFlagSet("ping", flag.ExitOnError)
 	downloadCommand = flag.NewFlagSet("download", flag.ExitOnError)
 	listCommand     = flag.NewFlagSet("ls", flag.ExitOnError)
 )
@@ -28,6 +29,11 @@ var (
 	serverTLS      = serverCommand.Bool("tls", false, "enable secure transport")
 	serverKeyFile  = serverCommand.String("key-file", "", "idenfity HTTPS client using this SSL key file")
 	serverCertFile = serverCommand.String("cert-file", "", "identify HTTPS client using this SSL certificate file")
+)
+
+var (
+	pingAddr     = pingCommand.String("addr", "", "ip address")
+	pingCertFile = pingCommand.String("cert-file", "", "identify HTTPS client using this SSL certificate file")
 )
 
 // Download Subcommands
@@ -70,6 +76,8 @@ cacert:  Required for most commands when tls is configured
 	switch os.Args[1] {
 	case "server":
 		serverCommand.Parse(os.Args[2:])
+	case "ping":
+		pingCommand.Parse(os.Args[2:])
 	case "download":
 		downloadCommand.Parse(os.Args[2:])
 	case "ls":
@@ -100,6 +108,19 @@ cacert:  Required for most commands when tls is configured
 		}
 
 		srv.Serve(lis)
+	}
+
+	if pingCommand.Parsed() {
+		conn, err := client.NewClientConn(*pingCertFile, *pingAddr)
+		if err != nil {
+			log.Fatalln(err)
+			os.Exit(1)
+		}
+
+		defer conn.Close()
+
+		cl := pb.NewPeerServiceClient(conn)
+		client.Ping(cl)
 	}
 
 	if downloadCommand.Parsed() {
