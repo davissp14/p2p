@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -51,5 +52,23 @@ func (p *PeerServiceServer) Download(req *pb.PeerDownloadRequest, stream pb.Peer
 		stream.Send(&chunk)
 	}
 	log.Println("File transfer completed!")
+	return nil
+}
+
+func (p *PeerServiceServer) List(req *pb.ListRequest, stream pb.PeerService_ListServer) error {
+	fs, err := ioutil.ReadDir(req.Directory)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range fs {
+		file := pb.File{
+			Name:  f.Name(),
+			Size:  f.Size(),
+			IsDir: f.IsDir(),
+		}
+		stream.Send(&file)
+	}
+
 	return nil
 }

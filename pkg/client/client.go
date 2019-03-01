@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/logrusorgru/aurora"
 
 	pb "github.com/davissp14/p2p/pkg/service"
 
@@ -69,11 +70,47 @@ func Download(client pb.PeerServiceClient, peerAddr, filePath string) {
 	log.Printf("File `%s` download was a success!\n", name)
 }
 
+func List(client pb.PeerServiceClient, directory string) {
+	au := aurora.NewAurora(true)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	req := pb.ListRequest{
+		Directory: directory,
+	}
+	stream, err := client.List(ctx, &req)
+	if err != nil {
+		log.Fatalf("failed to initiate stream. error: %s", err.Error())
+	}
+
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalln(err.Error())
+			return
+		}
+
+		if in.Name != "" {
+			if in.IsDir {
+				fmt.Printf("%-60s | %-10s\n", au.Blue(in.Name), "")
+			} else {
+				fmt.Printf("%-60s | %-10s\n", in.Name, fmt.Sprintf("%d bytes", in.Size))
+			}
+		}
+
+	}
+}
+
 func NewClientConn(cert, addr string) (*grpc.ClientConn, error) {
 	// Default to insecure connection
 	transportStrategy := grpc.WithInsecure()
 	// Establish Secure connection using provided public key
 	if cert != "" {
+		fmt.Println("Secure client conn")
 		creds, err := credentials.NewClientTLSFromFile(cert, "")
 		if err != nil {
 			return nil, err

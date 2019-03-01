@@ -20,7 +20,7 @@ var (
 	serverCommand   = flag.NewFlagSet("server", flag.ExitOnError)
 	pingCommand     = flag.NewFlagSet("ping", flag.ExitOnError)
 	downloadCommand = flag.NewFlagSet("download", flag.ExitOnError)
-	listCommand     = flag.NewFlagSet("ls", flag.ExitOnError)
+	listCommand     = flag.NewFlagSet("list", flag.ExitOnError)
 )
 
 // Server Subcommands
@@ -46,9 +46,9 @@ var (
 
 // List Files Subcommands
 var (
-	listAddr     = listCommand.String("addr", "", "ip address")
-	listDirPath  = listCommand.String("dir-path", "", "dir")
-	listCertFile = listCommand.String("cert-file", "", "identify HTTPS client using this SSL certificate file")
+	listAddr      = listCommand.String("addr", "", "ip address")
+	listDirectory = listCommand.String("dir", "/", "dir")
+	listCertFile  = listCommand.String("cert-file", "", "identify HTTPS client using this SSL certificate file")
 )
 
 func main() {
@@ -73,7 +73,7 @@ download:   Exchange public keys with node
 		pingCommand.Parse(os.Args[2:])
 	case "download":
 		downloadCommand.Parse(os.Args[2:])
-	case "ls":
+	case "list":
 		listCommand.Parse(os.Args[2:])
 	default:
 		flag.PrintDefaults()
@@ -129,16 +129,16 @@ download:   Exchange public keys with node
 		client.Download(cl, *downloadAddr, *downloadFilePath)
 	}
 
-	// if listCommand.Parsed() {
-	// 	conn, err := client.New(*downloadCertFile, *downloadAddr)
-	// 	if err != nil {
-	// 		log.Fatalln(err)
-	// 		os.Exit(1)
-	// 	}
+	if listCommand.Parsed() {
+		conn, err := client.NewClientConn(*listCertFile, *listAddr)
+		if err != nil {
+			log.Fatalln(err)
+			os.Exit(1)
+		}
 
-	// 	cl := pb.NewPeerServiceClient(conn)
-	// 	client.List(cl, *downloadAddr, *downloadFilePath)
+		cl := pb.NewPeerServiceClient(conn)
+		client.List(cl, *listDirectory)
 
-	// }
+	}
 
 }

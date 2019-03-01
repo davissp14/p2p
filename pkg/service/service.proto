@@ -18,8 +18,20 @@ message Chunk {
     bytes data = 1;
 }
 
+message File {
+    string name = 1;
+    string filepath = 2;
+    bool isDir = 3;
+    int64 size = 4; 
+}
+
+message ListRequest {
+    string directory = 1;
+}
+
 service PeerService {
     rpc Ping(google.protobuf.Empty) returns (PingMessage);
     rpc Download(PeerDownloadRequest) returns (stream Chunk);
+    rpc List(ListRequest) returns (stream File);
 }
 
