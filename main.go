@@ -25,11 +25,11 @@ var (
 
 // Server Subcommands
 var (
-	serverHost     = serverCommand.String("hostname", "localhost", "server hostname tied to cert")
 	serverPort     = serverCommand.Int("port", 8080, "server port")
 	serverTLS      = serverCommand.Bool("tls", false, "enable secure transport")
 	serverKeyFile  = serverCommand.String("key-file", "", "idenfity HTTPS client using this SSL key file")
 	serverCertFile = serverCommand.String("cert-file", "", "identify HTTPS client using this SSL certificate file")
+	serverHostname = serverCommand.String("hostname", "localhost", "identify HTTPS client using this SSL certificate file")
 )
 
 var (
@@ -51,12 +51,6 @@ var (
 	listCertFile = listCommand.String("cert-file", "", "identify HTTPS client using this SSL certificate file")
 )
 
-// addNodeCommand := flag.NewFlagSet("add_node", flag.ExitOnError)
-// listNodesCommand := flag.NewFlagSet("list_nodes", flag.ExitOnError)
-// pingCommand := flag.NewFlagSet("ping", flag.ExitOnError)
-// listFilesCommand := flag.NewFlagSet("list_files", flag.ExitOnError)
-// downloadCommand := flag.NewFlagSet("download", flag.ExitOnError)
-
 func main() {
 
 	if len(os.Args) < 2 {
@@ -68,8 +62,6 @@ server:     Starts server.
 ping        Ping Remote / Local node within your network.
 download:   Exchange public keys with node    
 
-Optional Flags
-cacert:  Required for most commands when tls is configured
 `)
 		os.Exit(1)
 	}
@@ -91,7 +83,7 @@ cacert:  Required for most commands when tls is configured
 	if serverCommand.Parsed() {
 		var srv *grpc.Server
 		if *serverTLS {
-			fmt.Printf("Establishing secure connection on port %d\n", *serverPort)
+			fmt.Printf("Establishing secure connection on %s:%d\n", *serverHostname, *serverPort)
 			creds, err := credentials.NewServerTLSFromFile(*serverCertFile, *serverKeyFile)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -103,7 +95,7 @@ cacert:  Required for most commands when tls is configured
 		}
 		pb.RegisterPeerServiceServer(srv, server.NewServer(*serverPort, *serverTLS, *serverKeyFile, *serverCertFile))
 
-		lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *serverHost, *serverPort))
+		lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *serverHostname, *serverPort))
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
