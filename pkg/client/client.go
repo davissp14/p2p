@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/logrusorgru/aurora"
 
 	pb "github.com/davissp14/p2p/pkg/service"
 
@@ -71,8 +70,6 @@ func Download(client pb.PeerServiceClient, peerAddr, filePath string) {
 }
 
 func List(client pb.PeerServiceClient, directory string) {
-	au := aurora.NewAurora(true)
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -84,8 +81,10 @@ func List(client pb.PeerServiceClient, directory string) {
 		log.Fatalf("failed to initiate stream. error: %s", err.Error())
 	}
 
+	var files []*pb.File
+
 	for {
-		in, err := stream.Recv()
+		file, err := stream.Recv()
 		if err == io.EOF {
 			break
 		}
@@ -93,15 +92,15 @@ func List(client pb.PeerServiceClient, directory string) {
 			log.Fatalln(err.Error())
 			return
 		}
+		files = append(files, file)
+	}
 
-		if in.Name != "" {
-			if in.IsDir {
-				fmt.Printf("%-60s | %-10s\n", au.Blue(in.Name), "")
-			} else {
-				fmt.Printf("%-60s | %-10s\n", in.Name, fmt.Sprintf("%d bytes", in.Size))
-			}
+	for _, file := range files {
+		if file.IsDir {
+			fmt.Printf("%-60s | %-10s\n", file.Name, "")
+		} else {
+			fmt.Printf("%-60s | %-10s\n", file.Name, fmt.Sprintf("%d bytes", file.Size))
 		}
-
 	}
 }
 
