@@ -8,11 +8,13 @@ import (
 	"os"
 
 	client "github.com/davissp14/p2p/pkg/client"
+	console "github.com/davissp14/p2p/pkg/console"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
 	server "github.com/davissp14/p2p/pkg/server"
 	pb "github.com/davissp14/p2p/pkg/service"
+
 )
 
 // Subcommands
@@ -21,6 +23,7 @@ var (
 	pingCommand     = flag.NewFlagSet("ping", flag.ExitOnError)
 	downloadCommand = flag.NewFlagSet("download", flag.ExitOnError)
 	listCommand     = flag.NewFlagSet("list", flag.ExitOnError)
+	consoleCommand  = flag.NewFlagSet("console", flag.ExitOnError)
 )
 
 // Server Subcommands
@@ -59,8 +62,10 @@ func main() {
 Available Commands
 ==============
 server:     Starts server.
-ping        Ping Remote / Local node within your network.
+ping:       Ping Remote / Local node within your network.
 download:   Exchange public keys with node    
+list:       List files in a specified directory
+console:    Open up console
 
 `)
 		os.Exit(1)
@@ -75,6 +80,8 @@ download:   Exchange public keys with node
 		downloadCommand.Parse(os.Args[2:])
 	case "list":
 		listCommand.Parse(os.Args[2:])
+	case "console":
+		consoleCommand.Parse(os.Args[2:])
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
@@ -138,7 +145,10 @@ download:   Exchange public keys with node
 
 		cl := pb.NewPeerServiceClient(conn)
 		client.List(cl, *listDirectory)
+	}
 
+	if consoleCommand.Parsed() {
+		console.StartUI()
 	}
 
 }

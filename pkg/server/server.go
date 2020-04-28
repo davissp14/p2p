@@ -6,8 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"fmt"
+	"path/filepath"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/golang/protobuf/ptypes"
 
 	pb "github.com/davissp14/p2p/pkg/service"
 )
@@ -58,15 +61,63 @@ func (p *PeerServiceServer) Download(req *pb.PeerDownloadRequest, stream pb.Peer
 func (p *PeerServiceServer) List(req *pb.ListRequest, stream pb.PeerService_ListServer) error {
 	fs, err := ioutil.ReadDir(req.Directory)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf(err.Error())
 	}
 
 	for _, f := range fs {
+		path_to_file := filepath.Clean(fmt.Sprintf("%s/%s", req.Directory, f.Name()))
+		fi, err := os.Lstat(path_to_file)
+		if err != nil {
+			fmt.Println(fmt.Sprintf("%s : %s", "error", err.Error()))
+		}
+
+		mode := f.Mode()
+		time, _ := ptypes.TimestampProto(f.ModTime())
+
 		file := pb.File{
 			Name:  f.Name(),
-			Size:  f.Size(),
-			IsDir: f.IsDir(),
+			Filepath: path_to_file,
+			ModTime: time, 
+			Mode: mode.String(),
+			Symlink: (fi.Mode()&os.ModeSymlink != 0),
+			LinkedTo: "",
+			ValidLink: false,
+			IsDir: false,
 		}
+
+
+		// file := pb.File{
+		// 	Filepath: req.Directory,
+		// 	ModTime: time,
+		// 	Mode: mode.String(),
+		// 	IsDir: mode.IsDir(),
+		// 	Size:  f.Size(),
+		// 	IsRegular: mode.IsRegular(),
+		// }
+
+		// True if the file is a symlink.
+		if file.Symlink {
+			origin, err := os.Readlink(path_to_file)
+			if err != nil {
+		 		fmt.Println(fmt.Sprintf("%s : %s", "error", err.Error()))
+			}
+			path_to_origin := filepath.Clean(fmt.Sprintf("/%s", origin))
+		
+			// Set LinkedTo
+			file.LinkedTo = path_to_origin 
+			linked, err := os.Lstat(path_to_origin)
+			if err == nil { 
+				file.ValidLink = true  
+				file.IsDir = linked.IsDir()
+			}
+		} else {
+			file.IsDir = f.IsDir() 
+		}
+
+		if !file.IsDir {
+			file.Size = f.Size()
+		}
+
 		stream.Send(&file)
 	}
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"strconv"
 
 	"github.com/golang/protobuf/ptypes/empty"
 
@@ -69,7 +70,7 @@ func Download(client pb.PeerServiceClient, peerAddr, filePath string) {
 	log.Printf("File `%s` download was a success!\n", name)
 }
 
-func List(client pb.PeerServiceClient, directory string) {
+func List(client pb.PeerServiceClient, directory string) ([]*pb.File, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -78,7 +79,7 @@ func List(client pb.PeerServiceClient, directory string) {
 	}
 	stream, err := client.List(ctx, &req)
 	if err != nil {
-		log.Fatalf("failed to initiate stream. error: %s", err.Error())
+		return nil, err
 	}
 
 	var files []*pb.File
@@ -90,18 +91,22 @@ func List(client pb.PeerServiceClient, directory string) {
 		}
 		if err != nil {
 			log.Fatalln(err.Error())
-			return
+			return nil, err
 		}
 		files = append(files, file)
 	}
 
+
 	for _, file := range files {
 		if file.IsDir {
-			fmt.Printf("%-60s | %-10s\n", file.Name, "")
+			fmt.Printf("%-60s | %-10s | %-10s | %-10s\n", file.Name, "", strconv.FormatBool(file.IsDir), file.LinkedTo)
 		} else {
-			fmt.Printf("%-60s | %-10s\n", file.Name, fmt.Sprintf("%d bytes", file.Size))
+			fmt.Printf("%-60s | %-10s  | %-10s | %-10s\n", file.Name, fmt.Sprintf("%d bytes", file.Size), strconv.FormatBool(file.IsDir), file.LinkedTo)
 		}
 	}
+
+	return files, nil 
+
 }
 
 func NewClientConn(cert, addr string) (*grpc.ClientConn, error) {
