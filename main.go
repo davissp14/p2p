@@ -8,7 +8,7 @@ import (
 	"os"
 
 	client "github.com/davissp14/p2p/pkg/client"
-	console "github.com/davissp14/p2p/pkg/console"
+	// console "github.com/davissp14/p2p/pkg/console"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
@@ -147,8 +147,8 @@ console:    Open up console
 		client.List(cl, *listDirectory)
 	}
 
-	if consoleCommand.Parsed() {
-		console.StartUI()
-	}
+	// if consoleCommand.Parsed() {
+	// 	console.StartUI()
+	// }
 
 }

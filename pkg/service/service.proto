@@ -1,37 +1,71 @@
 
 syntax = "proto3";
+
 package service;
 
 import "google/protobuf/empty.proto";
-// import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
-message PingMessage {
-    string message = 1;
-}
 
 message PeerDownloadRequest {
     string Addr = 1;
     string FilePath = 2;
 }
 
-message Chunk {
-    bytes data = 1;
-}
-
-message File {
-    string name = 1;
-    string filepath = 2;
-    bool isDir = 3;
-    int64 size = 4; 
-}
+// message PeerUploadRequest {
+//     string Addr = 1;
+//     string FilePath = 2;
+// }
 
 message ListRequest {
     string directory = 1;
 }
 
+message File {
+
+    string name = 1;
+    string filepath = 2;
+    google.protobuf.Timestamp modTime = 3;
+    string mode = 4;
+    bool symlink = 5;
+    string linkedTo = 6;
+    bool validLink = 7;
+    bool isDir = 8;
+    int64 size = 9; 
+    // enum FileType {
+    //     Directory = 0;
+    //     Temperary = 1;
+    //     Symlink = 2;
+    //     Device = 3;
+    //     Socket = 4;
+    //     CharDevice = 5;
+    //     Sticky = 6;
+    //     Irregular = 7;
+    // }
+}
+
+
+
+
+message PingMessage {
+    string message = 1;
+}
+
+// message UploadMessage {
+//     string message = 1;
+// }
+
+message Chunk {
+    bytes data = 1;
+}
+
+
+
+
 service PeerService {
     rpc Ping(google.protobuf.Empty) returns (PingMessage);
     rpc Download(PeerDownloadRequest) returns (stream Chunk);
+    // rpc Upload(PeerUploadRequest) returns (UploadMessage);
     rpc List(ListRequest) returns (stream File);
 }
 
