@@ -11,11 +11,9 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/ptypes/empty"
-
-	pb "github.com/davissp14/p2p/pkg/service"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	pb "github.com/davissp14/p2p/pkg/service"
 )
 
 func Ping(client pb.PeerServiceClient) {

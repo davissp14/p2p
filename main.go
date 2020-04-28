@@ -7,11 +7,10 @@ import (
 	"net"
 	"os"
 
-	client "github.com/davissp14/p2p/pkg/client"
-	// console "github.com/davissp14/p2p/pkg/console"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
+	client "github.com/davissp14/p2p/pkg/client"
 	server "github.com/davissp14/p2p/pkg/server"
 	pb "github.com/davissp14/p2p/pkg/service"
 
@@ -65,8 +64,6 @@ server:     Starts server.
 ping:       Ping Remote / Local node within your network.
 download:   Exchange public keys with node    
 list:       List files in a specified directory
-console:    Open up console
-
 `)
 		os.Exit(1)
 	}
@@ -80,8 +77,6 @@ console:    Open up console
 		downloadCommand.Parse(os.Args[2:])
 	case "list":
 		listCommand.Parse(os.Args[2:])
-	case "console":
-		consoleCommand.Parse(os.Args[2:])
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
@@ -146,9 +141,5 @@ console:    Open up console
 		cl := pb.NewPeerServiceClient(conn)
 		client.List(cl, *listDirectory)
 	}
-
-	// if consoleCommand.Parsed() {
-	// 	console.StartUI()
-	// }
 
 }
